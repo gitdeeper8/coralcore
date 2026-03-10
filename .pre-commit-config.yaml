@@ -1,0 +1,258 @@
+# 🪸 CORAL-CORE Pre-commit Configuration
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+repos:
+  # ===========================================================================
+  # GENERAL HOOKS
+  # ===========================================================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+        args: [--maxkb=10240]
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: detect-aws-credentials
+        args: [--allow-missing-credentials]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: fix-byte-order-marker
+      - id: forbid-new-submodules
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, master, --branch, develop]
+
+  # ===========================================================================
+  # PYTHON FORMATTING
+  # ===========================================================================
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        language_version: python3
+        args: [--line-length=100]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=100]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.4.0
+    hooks:
+      - id: pyupgrade
+        args: [--py39-plus, --keep-runtime-typing]
+
+  - repo: https://github.com/hhatto/autopep8
+    rev: v2.0.2
+    hooks:
+      - id: autopep8
+
+  # ===========================================================================
+  # PYTHON LINTING
+  # ===========================================================================
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=100, --extend-ignore=E203,W503]
+        additional_dependencies:
+          - flake8-docstrings
+          - flake8-bugbear
+          - flake8-comprehensions
+          - flake8-simplify
+          - flake8-typing-imports
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.3.0
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
+        additional_dependencies:
+          - types-all
+
+  - repo: https://github.com/PyCQA/pylint
+    rev: v3.0.0a6
+    hooks:
+      - id: pylint
+        args: [--rcfile=.pylintrc]
+        additional_dependencies:
+          - pylint-django
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [--skip=B101, -c, pyproject.toml]
+        files: ^coralcore/
+
+  # ===========================================================================
+  # PYTHON TYPE CHECKING
+  # ===========================================================================
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.3.0
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports, --follow-imports=silent]
+        additional_dependencies:
+          - types-requests
+          - types-PyYAML
+          - types-python-dateutil
+
+  # ===========================================================================
+  # JUPYTER NOTEBOOKS
+  # ===========================================================================
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.0
+    hooks:
+      - id: nbqa-black
+        args: [--line-length=100]
+      - id: nbqa-isort
+        args: [--profile=black]
+      - id: nbqa-flake8
+        args: [--max-line-length=100]
+
+  # ===========================================================================
+  # MARKDOWN
+  # ===========================================================================
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.34.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+
+  - repo: https://github.com/tcort/markdown-link-check
+    rev: v3.11.0
+    hooks:
+      - id: markdown-link-check
+        args: [--quiet, -p]
+
+  # ===========================================================================
+  # YAML
+  # ===========================================================================
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.32.0
+    hooks:
+      - id: yamllint
+        args: [--format, parsable, -d, relaxed]
+
+  # ===========================================================================
+  # JSON
+  # ===========================================================================
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.0-alpha.6
+    hooks:
+      - id: prettier
+        types_or: [json, javascript, css, scss, html]
+
+  # ===========================================================================
+  # DOCKER
+  # ===========================================================================
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3013]
+
+  - repo: https://github.com/AleksaC/hadolint-py
+    rev: v2.12.0
+    hooks:
+      - id: hadolint
+        args: [--ignore, DL3008]
+
+  # ===========================================================================
+  # SPELL CHECKING
+  # ===========================================================================
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+      - id: codespell
+        args: [--ignore-words=.codespell-ignore.txt]
+        exclude: ^(\.git|venv|env|\.env|data|models)/
+
+  # ===========================================================================
+  # SECURITY
+  # ===========================================================================
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.17.0
+    hooks:
+      - id: gitleaks-docker
+
+  # ===========================================================================
+  # SHELL SCRIPTS
+  # ===========================================================================
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.5
+    hooks:
+      - id: shellcheck
+
+  # ===========================================================================
+  # REQUIREMENTS
+  # ===========================================================================
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.1
+    hooks:
+      - id: python-safety-dependencies-check
+        files: requirements.txt
+
+  # ===========================================================================
+  # CUSTOM HOOKS
+  # ===========================================================================
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pytest tests/ -v
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [push]
+
+      - id: check-doi
+        name: check-doi
+        entry: python scripts/check_doi.py
+        language: system
+        files: \.(md|py|yml|yaml|toml|cfg)$
+        pass_filenames: false
+
+      - id: validate-version
+        name: validate-version
+        entry: python scripts/validate_version.py
+        language: system
+        files: ^(setup\.py|setup\.cfg|pyproject\.toml|coralcore/__init__\.py)$
+        pass_filenames: false
+
+# =============================================================================
+# CI
+# =============================================================================
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+  autoupdate_commit_msg: |
+    [pre-commit.ci] pre-commit autoupdate
+  autoupdate_schedule: weekly
+  skip: [pylint, mypy, pytest]
+  submodules: false
+
+# =============================================================================
+# END OF PRE-COMMIT-CONFIG.YAML
+# =============================================================================

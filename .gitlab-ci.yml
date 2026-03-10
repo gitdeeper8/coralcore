@@ -1,0 +1,268 @@
+# 🪸 CORAL-CORE GitLab CI/CD Configuration
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+stages:
+  - test
+  - build
+  - deploy
+  - docs
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  LATEST_TAG: $CI_REGISTRY_IMAGE:latest
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+  key: "$CI_COMMIT_REF_SLUG"
+
+# =============================================================================
+# TEST STAGE
+# =============================================================================
+
+.test_template: &test_definition
+  stage: test
+  image: python:3.10-slim
+  before_script:
+    - python -V
+    - pip install --upgrade pip
+    - pip install pytest pytest-cov pytest-xdist pytest-asyncio
+    - pip install -r requirements.txt
+    - pip install -e .
+  script:
+    - pytest tests/ -v --cov=coralcore --cov-report=term --cov-report=xml
+    - coverage report -m
+  artifacts:
+    reports:
+      cobertura: coverage.xml
+    paths:
+      - htmlcov/
+    expire_in: 1 week
+
+test-python39:
+  <<: *test_definition
+  image: python:3.9-slim
+
+test-python310:
+  <<: *test_definition
+  image: python:3.10-slim
+
+test-python311:
+  <<: *test_definition
+  image: python:3.11-slim
+
+test-field-data:
+  stage: test
+  image: python:3.10-slim
+  before_script:
+    - pip install -r requirements.txt
+    - pip install -e .
+  script:
+    - pytest tests/ -v -m field
+  only:
+    - main
+    - tags
+
+test-sensors:
+  stage: test
+  image: python:3.10-slim
+  before_script:
+    - apt-get update && apt-get install -y usbutils libusb-1.0-0-dev
+    - pip install -r requirements.txt
+    - pip install -e .[sensors]
+  script:
+    - python scripts/test_sensors.py --mock
+  only:
+    - main
+    - tags
+
+lint:
+  stage: test
+  image: python:3.10-slim
+  before_script:
+    - pip install flake8 black isort mypy pylint
+  script:
+    - flake8 coralcore/ tests/
+    - black --check coralcore/ tests/
+    - isort --check-only coralcore/ tests/
+    - mypy coralcore/
+    - pylint coralcore/ tests/
+  allow_failure: true
+
+# =============================================================================
+# BUILD STAGE
+# =============================================================================
+
+build-package:
+  stage: build
+  image: python:3.10-slim
+  before_script:
+    - pip install build twine
+  script:
+    - python -m build
+    - twine check dist/*
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+
+build-docker:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $IMAGE_TAG -f Dockerfile .
+    - docker tag $IMAGE_TAG $LATEST_TAG
+    - docker push $IMAGE_TAG
+    - docker push $LATEST_TAG
+  only:
+    - main
+    - tags
+
+build-docker-dev:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:dev -f Dockerfile.dev .
+    - docker push $CI_REGISTRY_IMAGE:dev
+  only:
+    - develop
+
+# =============================================================================
+# DEPLOY STAGE
+# =============================================================================
+
+deploy-pypi:
+  stage: deploy
+  image: python:3.10-slim
+  before_script:
+    - pip install twine
+  script:
+    - TWINE_PASSWORD=${PYPI_TOKEN} twine upload --username __token__ dist/*
+  only:
+    - tags
+  when: manual
+
+deploy-production:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - ssh -o StrictHostKeyChecking=no user@production-server "cd /opt/coralcore && docker-compose pull && docker-compose up -d"
+  only:
+    - main
+  when: manual
+
+deploy-staging:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  script:
+    - ssh -o StrictHostKeyChecking=no user@staging-server "cd /opt/coralcore && docker-compose pull && docker-compose up -d"
+  only:
+    - develop
+  when: manual
+
+# =============================================================================
+# DOCS STAGE
+# =============================================================================
+
+build-docs:
+  stage: docs
+  image: python:3.10-slim
+  before_script:
+    - apt-get update && apt-get install -y pandoc
+    - pip install mkdocs mkdocs-material mkdocstrings
+    - pip install -r requirements-docs.txt
+  script:
+    - mkdocs build --strict
+  artifacts:
+    paths:
+      - site/
+    expire_in: 1 week
+
+deploy-docs:
+  stage: docs
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
+  script:
+    - curl -X POST -d "token=$NETLIFY_TOKEN" https://api.netlify.com/build_hooks/$NETLIFY_HOOK_ID
+  only:
+    - main
+  when: manual
+
+# =============================================================================
+# SECURITY SCANNING
+# =============================================================================
+
+security-scan:
+  stage: test
+  image: python:3.10-slim
+  before_script:
+    - pip install bandit safety
+  script:
+    - bandit -r coralcore/ -f json -o bandit-report.json
+    - safety check -r requirements.txt --json > safety-report.json
+  artifacts:
+    paths:
+      - bandit-report.json
+      - safety-report.json
+    expire_in: 1 week
+  allow_failure: true
+
+# =============================================================================
+# PAGES
+# =============================================================================
+
+pages:
+  stage: deploy
+  image: python:3.10-slim
+  before_script:
+    - pip install mkdocs mkdocs-material
+  script:
+    - mkdocs build --strict
+    - mv site/ public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+  when: manual
+
+# =============================================================================
+# VARIABLES
+# =============================================================================
+
+variables:
+  POSTGRES_VERSION: 15
+  REDIS_VERSION: 7
+  TIMESCALEDB_VERSION: latest-pg15
+
+# =============================================================================
+# END OF GITLAB-CI.YML
+# =============================================================================

@@ -1,0 +1,43 @@
+# 🪸 CORAL-CORE Coverage Configuration
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+[run]
+source = coralcore
+omit = 
+    */tests/*
+    */docs/*
+    */examples/*
+    */setup.py
+    */version.py
+    *_test.py
+    test_*.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if __name__ == .__main__.:
+    raise AssertionError
+    raise NotImplementedError
+    return NotImplemented
+    pass
+    ^\s*\.\.\.$
+
+ignore_errors = True
+
+[html]
+directory = coverage_html_report
+
+[xml]
+output = coverage.xml
+
+[paths]
+source =
+    coralcore/
+    */site-packages/coralcore/
+
+# =============================================================================
+# END OF COVERAGERC
+# =============================================================================

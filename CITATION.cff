@@ -1,0 +1,113 @@
+# 🪸 CORAL-CORE Citation File Format
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+cff-version: 1.2.0
+message: "If you use CORAL-CORE in your research, please cite it as below."
+title: "CORAL-CORE: Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework"
+version: 1.0.0
+doi: 10.5281/zenodo.18913829
+date-released: 2026-03-08
+repository-code: "https://github.com/gitdeeper8/coralcore"
+url: "https://coralcore.netlify.app"
+license: MIT
+type: software
+abstract: "CORAL-CORE (Coral Organism Reef Analysis & Living -- Calcification, Ocean, and Reef Ecology) is a comprehensive physics-based framework integrating eight governing parameters to decode the extraordinary engineering capacity of stony coral reefs. The framework characterizes coral reefs not merely as biological communities, but as self-assembling chemical-mechanical factories converting dissolved calcium ions into hierarchically structured, wave-resistant aragonite architecture of unparalleled material efficiency."
+
+authors:
+  - family-names: "Baladi"
+    given-names: "Samir"
+    name-particle: ""
+    name-suffix: ""
+    orcid: "https://orcid.org/0009-0003-8903-0029"
+    email: "gitdeeper@gmail.com"
+    affiliation: "Ronin Institute / Rite of Renaissance"
+
+keywords:
+  - "coral"
+  - "reef"
+  - "biomineralization"
+  - "calcification"
+  - "ocean acidification"
+  - "wave energy dissipation"
+  - "acoustics"
+  - "photogrammetry"
+  - "machine learning"
+  - "climate change"
+  - "coastal engineering"
+  - "conservation"
+  - "Red Sea"
+  - "Great Barrier Reef"
+
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.18913829
+    description: "Zenodo archive"
+  - type: url
+    value: "https://coralcore.netlify.app"
+    description: "Project website"
+  - type: url
+    value: "https://github.com/gitdeeper8/coralcore"
+    description: "Source code repository"
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Baladi"
+      given-names: "Samir"
+    - family-names: ""
+      given-names: ""
+  title: "CORAL-CORE: Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework - A Multi-Parameter Physico-Ecological Framework for Real-Time Analysis of Coral Reef Calcification, Wave Energy Dissipation, and Bio-Acoustic Reef Architecture"
+  journal: "Coral Reefs"
+  publisher: "Springer"
+  year: 2026
+  volume: ""
+  issue: ""
+  pages: ""
+  doi: "10.1007/s00338-026-0001-x"
+
+references:
+  - type: article
+    authors:
+      - family-names: "Albright"
+        given-names: "R."
+    title: "Reversal of ocean acidification enhances net coral reef calcification"
+    journal: "Nature"
+    volume: "531"
+    pages: "362-365"
+    year: 2016
+    doi: "10.1038/nature17155"
+
+  - type: article
+    authors:
+      - family-names: "Goreau"
+        given-names: "T.F."
+    title: "The physiology of skeleton formation in corals. I. A method for measuring the rate of calcium deposition by corals under different conditions"
+    journal: "Biological Bulletin"
+    volume: "116"
+    pages: "59-75"
+    year: 1959
+    doi: "10.2307/1538819"
+
+  - type: article
+    authors:
+      - family-names: "Lowe"
+        given-names: "R.J."
+    title: "Spectral wave dissipation over a barrier reef"
+    journal: "Journal of Geophysical Research: Oceans"
+    volume: "110"
+    year: 2005
+    doi: "10.1029/2004JC002711"
+
+contact:
+  - name: "Samir Baladi"
+    email: "gitdeeper@gmail.com"
+    orcid: "https://orcid.org/0009-0003-8903-0029"
+
+funding:
+  - "Ronin Institute"
+  - "Rite of Renaissance"
+
+# =============================================================================
+# END OF CITATION.CFF
+# =============================================================================

@@ -1,0 +1,237 @@
+# 🪸 CORAL-CORE MANIFEST.in
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+# =============================================================================
+# INCLUDE FILES
+# =============================================================================
+
+# Core package files
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+include AUTHORS.md
+include CODE_OF_CONDUCT.md
+include SECURITY.md
+
+# Configuration files
+include .env.example
+include .coveragerc
+include .pre-commit-config.yaml
+include .readthedocs.yaml
+include .gitlab-ci.yml
+include pyproject.toml
+include setup.cfg
+include setup.py
+include requirements.txt
+include requirements-dev.txt
+include requirements-docs.txt
+include requirements-test.txt
+include MANIFEST.in
+
+# Docker files
+include Dockerfile
+include Dockerfile.dev
+include Dockerfile.gpu
+include docker-compose.yml
+include docker-compose.dev.yml
+include .dockerignore
+
+# Documentation
+include docs/Makefile
+include docs/requirements.txt
+include docs/source/conf.py
+include docs/source/*.rst
+include docs/source/*.md
+include docs/source/api/*.rst
+include docs/source/tutorials/*.rst
+include docs/source/explanations/*.rst
+include docs/source/references/*.rst
+
+# Scripts
+include scripts/*.py
+include scripts/*.sh
+include scripts/*.R
+
+# Sample data
+include data/sample/*.csv
+include data/sample/*.json
+include data/sample/*.h5
+include data/sample/*.wav
+include data/sample/*.obj
+
+# Models
+include models/*.h5
+include models/*.pkl
+include models/*.joblib
+include models/*.json
+
+# Configuration
+include config/*.yaml
+include config/*.json
+include config/*.ini
+include config/sensors/*.yaml
+include config/calibration/*.json
+
+# Tests
+include tests/conftest.py
+include tests/data/*.csv
+include tests/data/*.wav
+include tests/data/*.obj
+
+# Jupyter notebooks
+include notebooks/*.ipynb
+include notebooks/README.md
+
+# =============================================================================
+# EXCLUDE FILES
+# =============================================================================
+exclude .gitignore
+exclude .gitattributes
+exclude .gitmodules
+exclude .travis.yml
+exclude .codecov.yml
+exclude .bumpversion.cfg
+exclude .isort.cfg
+exclude .flake8
+exclude .mypy.ini
+exclude .pylintrc
+exclude .bandit
+exclude .safety-policy.yml
+exclude .prettierrc
+exclude .eslintrc
+exclude .stylelintrc
+exclude .jshintrc
+exclude .editorconfig
+
+# =============================================================================
+# RECURSIVE INCLUDE
+# =============================================================================
+recursive-include coralcore *.py
+recursive-include coralcore *.pyx
+recursive-include coralcore *.pxd
+recursive-include coralcore *.so
+recursive-include coralcore *.dll
+recursive-include coralcore *.dylib
+recursive-include coralcore *.json
+recursive-include coralcore *.yaml
+recursive-include coralcore *.yml
+recursive-include coralcore *.csv
+recursive-include coralcore *.h5
+recursive-include coralcore *.nc
+recursive-include coralcore *.hdf5
+recursive-include coralcore *.pkl
+recursive-include coralcore *.joblib
+recursive-include coralcore *.h5
+recursive-include coralcore *.pb
+recursive-include coralcore *.tflite
+recursive-include coralcore *.onnx
+recursive-include coralcore *.caffemodel
+recursive-include coralcore *.pt
+recursive-include coralcore *.pth
+recursive-include coralcore *.ckpt
+recursive-include coralcore *.mar
+recursive-include coralcore *.wav
+recursive-include coralcore *.mp3
+recursive-include coralcore *.flac
+recursive-include coralcore *.ogg
+recursive-include coralcore *.obj
+recursive-include coralcore *.ply
+recursive-include coralcore *.stl
+recursive-include coralcore *.off
+recursive-include coralcore *.gltf
+recursive-include coralcore *.glb
+recursive-include coralcore *.3mf
+
+# =============================================================================
+# RECURSIVE EXCLUDE
+# =============================================================================
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
+recursive-exclude * *.pyd
+recursive-exclude * *.so.dbg
+recursive-exclude * *.egg-info
+recursive-exclude * .ipynb_checkpoints
+recursive-exclude * .pytest_cache
+recursive-exclude * .mypy_cache
+recursive-exclude * .coverage
+recursive-exclude * .cache
+recursive-exclude * .tox
+recursive-exclude * .nox
+recursive-exclude * .venv
+recursive-exclude * venv
+recursive-exclude * env
+recursive-exclude * build
+recursive-exclude * dist
+recursive-exclude * htmlcov
+recursive-exclude * *.log
+recursive-exclude * *.pid
+recursive-exclude * *.lock
+recursive-exclude * *.bak
+recursive-exclude * *.swp
+recursive-exclude * *.swo
+recursive-exclude * .DS_Store
+recursive-exclude * Thumbs.db
+recursive-exclude * *.tmp
+recursive-exclude * *.temp
+recursive-exclude * *.cache
+
+# =============================================================================
+# GLOBAL EXCLUDES
+# =============================================================================
+global-exclude .git*
+global-exclude .hg*
+global-exclude .svn*
+global-exclude .idea
+global-exclude .vscode
+global-exclude *.db
+global-exclude *.sqlite
+global-exclude *.sqlite3
+global-exclude *.db-journal
+global-exclude *.wal
+
+# =============================================================================
+# PRUNE DIRECTORIES
+# =============================================================================
+prune .github
+prube .gitlab
+prune .circleci
+prune .azuredevops
+prune .devcontainer
+prune .vscode
+prune .idea
+prune .eclipse
+prune .settings
+prune .project
+prune .classpath
+prune __pycache__
+prune build
+prune dist
+prune *.egg-info
+prune htmlcov
+prune .pytest_cache
+prune .mypy_cache
+prune .tox
+prune .nox
+prune .venv
+prune venv
+prune env
+prune envs
+prune virtualenv
+prune virtualenvs
+prune __pycache__
+prune docs/_build
+prune docs/build
+prune notebooks/.ipynb_checkpoints
+prune data/raw
+prune data/processed
+prune data/backup
+prune data/archive
+prune logs
+prune models/archive
+
+# =============================================================================
+# END OF MANIFEST.IN
+# =============================================================================

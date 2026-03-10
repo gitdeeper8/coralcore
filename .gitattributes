@@ -1,0 +1,121 @@
+# 🪸 CORAL-CORE Git Attributes
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python
+*.py text diff=python
+*.pyx text diff=python
+*.pxd text diff=python
+*.pyi text diff=python
+
+# Jupyter Notebooks
+*.ipynb text diff=jupyter
+
+# Documentation
+*.md text
+*.rst text
+*.txt text
+*.tex text
+
+# Configuration
+*.yml text
+*.yaml text
+*.json text
+*.toml text
+*.cfg text
+*.ini text
+*.conf text
+
+# Data files
+*.csv text
+*.tsv text
+*.h5 binary
+*.hdf5 binary
+*.nc binary
+*.zarr binary
+*.db binary
+*.sqlite binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text
+*.ico binary
+*.bmp binary
+
+# Audio
+*.wav binary
+*.mp3 binary
+*.flac binary
+*.ogg binary
+
+# 3D models
+*.obj binary
+*.ply binary
+*.stl binary
+*.off binary
+*.gltf binary
+*.glb binary
+*.3mf binary
+
+# Machine Learning
+*.h5 binary
+*.pb binary
+*.tflite binary
+*.onnx binary
+*.pt binary
+*.pth binary
+*.ckpt binary
+*.pkl binary
+*.joblib binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.xz binary
+*.7z binary
+*.rar binary
+
+# Docker
+Dockerfile text
+Dockerfile.* text
+*.dockerfile text
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+*.fish text eol=lf
+
+# Windows specific
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Generated files
+*.pyc binary diff=python
+*.pyo binary
+*.egg binary
+*.egg-info binary
+*.whl binary
+*.so binary
+*.dll binary
+*.dylib binary
+
+# Linguist overrides
+.gitattributes linguist-generated
+.gitignore linguist-generated
+.env.example linguist-generated
+*.min.js linguist-generated
+*.min.css linguist-generated
+
+# =============================================================================
+# END OF GITATTRIBUTES
+# =============================================================================

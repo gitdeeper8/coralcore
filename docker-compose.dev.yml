@@ -1,0 +1,346 @@
+# 🪸 CORAL-CORE Docker Compose Development Configuration
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+version: '3.8'
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  coralcore-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  postgres-dev-data:
+  timescaledb-dev-data:
+  redis-dev-data:
+  influxdb-dev-data:
+  coralcore-dev-data:
+
+# =============================================================================
+# SERVICES
+# =============================================================================
+services:
+  # ===========================================================================
+  # DATABASES
+  # ===========================================================================
+  
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: coralcore-postgres-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: coralcore_dev
+      POSTGRES_USER: coraluser
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "5432:5432"
+    command: postgres -c log_statement=all
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coraluser -d coralcore_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  timescaledb-dev:
+    image: timescale/timescaledb:latest-pg15
+    container_name: coralcore-timescaledb-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    volumes:
+      - timescaledb-dev-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: coralcore_ts_dev
+      POSTGRES_USER: coraluser
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "5433:5432"
+    command: ["postgres", "-c", "shared_preload_libraries=timescaledb", "-c", "log_statement=all"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coraluser -d coralcore_ts_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: coralcore-redis-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    volumes:
+      - redis-dev-data:/data
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  influxdb-dev:
+    image: influxdb:2.7-alpine
+    container_name: coralcore-influxdb-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    volumes:
+      - influxdb-dev-data:/var/lib/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: devpassword
+      DOCKER_INFLUXDB_INIT_ORG: coralcore
+      DOCKER_INFLUXDB_INIT_BUCKET: sensor_data_dev
+      DOCKER_INFLUXDB_INIT_RETENTION: 7d
+    ports:
+      - "8086:8086"
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===========================================================================
+  # MESSAGE QUEUE
+  # ===========================================================================
+  
+  rabbitmq-dev:
+    image: rabbitmq:3-management-alpine
+    container_name: coralcore-rabbitmq-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    environment:
+      RABBITMQ_DEFAULT_USER: coraluser
+      RABBITMQ_DEFAULT_PASS: devpassword
+      RABBITMQ_DEFAULT_VHOST: coralcore_dev
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===========================================================================
+  # CORAL-CORE DEVELOPMENT SERVICES
+  # ===========================================================================
+  
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: coralcore-app-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      timescaledb-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+      influxdb-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - coralcore-dev-data:/data
+      - /dev:/dev:ro
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - PYTHONPATH=/app
+      - DB_HOST=postgres-dev
+      - DB_PORT=5432
+      - DB_NAME=coralcore_dev
+      - DB_USER=coraluser
+      - DB_PASSWORD=devpassword
+      - TSDB_HOST=timescaledb-dev
+      - TSDB_PORT=5433
+      - TSDB_NAME=coralcore_ts_dev
+      - REDIS_HOST=redis-dev
+      - REDIS_PORT=6379
+      - INFLUX_HOST=influxdb-dev
+      - INFLUX_PORT=8086
+      - INFLUX_ORG=coralcore
+      - INFLUX_BUCKET=sensor_data_dev
+      - INFLUX_TOKEN=devtoken
+      - RABBITMQ_HOST=rabbitmq-dev
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=coraluser
+      - RABBITMQ_PASSWORD=devpassword
+    ports:
+      - "5000:5000"
+      - "8000:8000"
+      - "8888:8888"
+      - "6006:6006"
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+      - "/dev/ttyUSB2:/dev/ttyUSB2"
+    stdin_open: true
+    tty: true
+    privileged: true
+    command: /bin/bash -c "python -m coralcore.cli serve --host 0.0.0.0 --port 5000 --debug"
+
+  jupyter-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: coralcore-jupyter-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    depends_on:
+      - app-dev
+    volumes:
+      - .:/app
+      - coralcore-dev-data:/data
+      - ./notebooks:/notebooks
+    environment:
+      - FLASK_ENV=development
+      - PYTHONPATH=/app
+      - DB_HOST=postgres-dev
+      - DB_PORT=5432
+      - DB_NAME=coralcore_dev
+      - DB_USER=coraluser
+      - DB_PASSWORD=devpassword
+    ports:
+      - "8889:8888"
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='dev' --notebook-dir=/notebooks
+
+  # ===========================================================================
+  # MONITORING (DEV)
+  # ===========================================================================
+  
+  prometheus-dev:
+    image: prom/prometheus:latest
+    container_name: coralcore-prometheus-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/prometheus/alerts-dev.yml:/etc/prometheus/alerts.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9091:9090"
+
+  grafana-dev:
+    image: grafana/grafana:latest
+    container_name: coralcore-grafana-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    depends_on:
+      - prometheus-dev
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - ./docker/grafana/datasources-dev.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./docker/grafana/dashboards-dev:/etc/grafana/provisioning/dashboards
+    ports:
+      - "3001:3000"
+
+  # ===========================================================================
+  # ADMIN TOOLS
+  # ===========================================================================
+  
+  pgadmin-dev:
+    image: dpage/pgadmin4:latest
+    container_name: coralcore-pgadmin-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    depends_on:
+      - postgres-dev
+      - timescaledb-dev
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@coralcore.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - ./docker/pgadmin/servers-dev.json:/pgadmin4/servers.json
+    ports:
+      - "5050:80"
+
+  adminer-dev:
+    image: adminer:latest
+    container_name: coralcore-adminer-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    ports:
+      - "8080:8080"
+
+  mailhog-dev:
+    image: mailhog/mailhog:latest
+    container_name: coralcore-mailhog-dev
+    restart: unless-stopped
+    networks:
+      - coralcore-dev-network
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  # ===========================================================================
+  # TEST DATA GENERATOR
+  # ===========================================================================
+  
+  test-data-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: coralcore-test-data
+    restart: "no"
+    networks:
+      - coralcore-dev-network
+    depends_on:
+      - postgres-dev
+      - timescaledb-dev
+      - influxdb-dev
+    volumes:
+      - .:/app
+    environment:
+      - DB_HOST=postgres-dev
+      - DB_PORT=5432
+      - DB_NAME=coralcore_dev
+      - DB_USER=coraluser
+      - DB_PASSWORD=devpassword
+      - TSDB_HOST=timescaledb-dev
+      - TSDB_PORT=5433
+      - TSDB_NAME=coralcore_ts_dev
+      - INFLUX_HOST=influxdb-dev
+      - INFLUX_PORT=8086
+      - INFLUX_ORG=coralcore
+      - INFLUX_BUCKET=sensor_data_dev
+      - INFLUX_TOKEN=devtoken
+    command: python scripts/generate_test_data.py --days 30 --sites 3
+
+# =============================================================================
+# END OF DOCKER-COMPOSE.DEV.YML
+# =============================================================================

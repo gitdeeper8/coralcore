@@ -1,0 +1,174 @@
+# 🪸 CORAL-CORE Docker Development Image
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+# =============================================================================
+# DEVELOPMENT IMAGE
+# =============================================================================
+FROM python:3.10-slim-bullseye
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONFAULTHANDLER=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC \
+    FLASK_ENV=development \
+    FLASK_DEBUG=1 \
+    PYTHONPATH=/app
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build tools
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    cmake \
+    # Development tools
+    curl \
+    wget \
+    git \
+    vim \
+    nano \
+    htop \
+    tmux \
+    iputils-ping \
+    net-tools \
+    telnet \
+    gdb \
+    strace \
+    valgrind \
+    # Scientific libraries
+    libhdf5-dev \
+    libnetcdf-dev \
+    libopenblas-dev \
+    liblapack-dev \
+    libatlas-base-dev \
+    # Audio processing
+    libsndfile1-dev \
+    libportaudio2 \
+    portaudio19-dev \
+    ffmpeg \
+    # Image processing
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    # Sensor libraries
+    usbutils \
+    udev \
+    libusb-1.0-0-dev \
+    # Documentation tools
+    pandoc \
+    texlive-latex-base \
+    texlive-fonts-recommended \
+    # Cleanup
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -g 1000 coralcore && \
+    useradd -u 1000 -g coralcore -s /bin/bash -m coralcore && \
+    mkdir -p /data /logs /config /notebooks && \
+    chown -R coralcore:coralcore /app /data /logs /config /notebooks
+
+# Upgrade pip
+RUN pip install --upgrade pip setuptools wheel
+
+# Copy requirements files
+COPY requirements.txt requirements-dev.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements-dev.txt
+
+# Install sensor drivers
+RUN pip install --no-cache-dir \
+    pyserial \
+    pyusb \
+    pyvisa \
+    pyvisa-py \
+    sami-alk-driver \
+    amar-g4-driver \
+    diving-pam-driver \
+    rdi-adcp-driver \
+    sbe37-driver
+
+# Install Jupyter for development
+RUN pip install --no-cache-dir \
+    jupyter \
+    jupyterlab \
+    ipykernel \
+    ipywidgets \
+    nbconvert
+
+# Create necessary directories
+RUN mkdir -p /app/coralcore /app/tests /app/docs /app/scripts /app/notebooks /app/data
+
+# Copy source code (will be mounted in development)
+COPY --chown=coralcore:coralcore . /app
+
+# Install package in editable mode
+RUN pip install -e .
+
+# Set up Jupyter kernel
+RUN python -m ipykernel install --user --name coralcore --display-name "CORAL-CORE"
+
+# Switch to non-root user
+USER coralcore
+
+# Create udev rules directory for user
+RUN mkdir -p ~/.udev/rules.d/
+
+# Set up bashrc with useful aliases
+RUN echo 'alias ccli="coralcore-cli"' >> ~/.bashrc && \
+    echo 'alias ctest="pytest tests/ -v"' >> ~/.bashrc && \
+    echo 'alias crun="python -m coralcore.cli serve"' >> ~/.bashrc && \
+    echo 'alias cdata="cd /data"' >> ~/.bashrc && \
+    echo 'alias clogs="cd /logs"' >> ~/.bashrc && \
+    echo 'export PS1="\[\e[32m\]\u@coralcore\[\e[m\]:\[\e[34m\]\w\[\e[m\]\$ "' >> ~/.bashrc
+
+# Set up IPython configuration
+RUN mkdir -p ~/.ipython/profile_default/startup/ && \
+    echo 'import numpy as np\nimport pandas as pd\nimport matplotlib.pyplot as plt\n%matplotlib inline' > ~/.ipython/profile_default/startup/00-imports.py
+
+# Expose ports
+EXPOSE 5000 8000 8080 8888 6006 8889
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:5000/health')" || exit 1
+
+# Set entrypoint
+ENTRYPOINT ["/bin/bash", "-c"]
+
+# Default command (Jupyter Lab)
+CMD ["jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password='' --notebook-dir=/notebooks"]
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+VOLUME ["/app", "/data", "/logs", "/config", "/notebooks"]
+
+# =============================================================================
+# LABELS
+# =============================================================================
+LABEL maintainer="Samir Baladi <gitdeeper@gmail.com>" \
+      org.opencontainers.image.title="CORAL-CORE Development" \
+      org.opencontainers.image.description="Development environment for CORAL-CORE Framework" \
+      org.opencontainers.image.version="1.0.0-dev" \
+      org.opencontainers.image.url="https://github.com/gitdeeper8/coralcore" \
+      org.opencontainers.image.documentation="https://coralcore.netlify.app/docs" \
+      org.opencontainers.image.source="https://github.com/gitdeeper8/coralcore.git" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.doi="10.5281/zenodo.18913829" \
+      org.opencontainers.image.authors="Samir Baladi" \
+      org.opencontainers.image.vendor="CORAL-CORE Project" \
+      org.opencontainers.image.created="2026-03-08"
+
+# =============================================================================
+# END OF DOCKERFILE.DEV
+# =============================================================================

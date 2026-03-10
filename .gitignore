@@ -1,0 +1,303 @@
+# 🪸 CORAL-CORE GitIgnore
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# ============================================
+# Sensor Data
+# ============================================
+/data/
+/raw_data/
+/processed_data/
+/backup/
+/archive/
+*.db
+*.sqlite
+*.sqlite3
+*.h5
+*.hdf5
+*.nc
+*.zarr
+sensor_logs/
+*.sami
+*.amar
+*.pam
+*.adcp
+*.sbe37
+*.gopro
+
+# ============================================
+# Photogrammetry
+# ============================================
+*.obj
+*.ply
+*.stl
+*.off
+*.gltf
+*.glb
+*.3mf
+*.fbx
+*.dae
+*.blend
+*.blend1
+*.ma
+*.mb
+*.max
+*.c4d
+*.lwo
+*.lxo
+*.abc
+*.usd
+*.usda
+*.usdc
+*.usdz
+photogrammetry/
+sfm_output/
+dense_cloud/
+mesh/
+texture/
+*.log
+*.txt
+*.xml
+*.psx
+
+# ============================================
+# Acoustic Data
+# ============================================
+*.wav
+*.mp3
+*.flac
+*.aiff
+*.aif
+*.ogg
+*.m4a
+*.wma
+*.au
+*.raw
+*.pcm
+spectrograms/
+hydrophone_data/
+
+# ============================================
+# Environment & Secrets
+# ============================================
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+*.env
+config/secrets/
+*.key
+*.pem
+*.crt
+*.cert
+*.pfx
+*.p12
+*.keystore
+secrets.yml
+secrets.yaml
+credentials.json
+service-account.json
+api_keys.txt
+passwords.txt
+
+# ============================================
+# Docker
+# ============================================
+*.pid
+docker-compose.override.yml
+.docker/
+docker/data/
+docker/db/
+docker/redis/
+docker/elasticsearch/
+*.pid
+Dockerfile.test
+docker-compose.test.yml
+
+# ============================================
+# IDE & Editors
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.directory
+*.bak
+*.tmp
+*.temp
+*.cache
+*.lock
+.project
+.classpath
+.settings/
+*.sublime-*
+*.code-workspace
+*.vscode*
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================
+# OS Generated
+# ============================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+*.desktop
+*.directory
+
+# ============================================
+# Jupyter Notebooks
+# ============================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+*.nbconvert.*
+*.ipynb
+
+# ============================================
+# ML Models
+# ============================================
+*.h5
+*.hdf5
+*.pb
+*.pbtxt
+*.onnx
+*.caffemodel
+*.caffemodel.h5
+*.mlmodel
+*.mlpackage
+*.tflite
+*.tfl
+*.sav
+*.pkl
+*.joblib
+*.model
+*.pt
+*.pth
+*.weights
+*.ckpt
+*.mar
+models/
+ml_models/
+
+# ============================================
+# Documentation
+# ============================================
+site/
+_build/
+build/
+dist/
+docs/build/
+docs/_build/
+*.pdf
+*.epub
+*.mobi
+*.dvi
+*.ps
+
+# ============================================
+# Testing
+# ============================================
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+test_outputs/
+test_results/
+
+# ============================================
+# Large Files (>100MB)
+# ============================================
+*.7z
+*.dmg
+*.exe
+*.iso
+*.bin
+*.dll
+*.so
+*.dylib
+*.zip
+*.tar
+*.gz
+*.bz2
+*.rar
+*.7z
+*.xz
+*.lz
+*.lzma
+*.lzo
+*.zst
+
+# ============================================
+# Exceptions (Files that should be tracked)
+# ============================================
+!.gitkeep
+!.env.example
+!config/secrets.example.yml
+!docker/data/.gitkeep
+!logs/.gitkeep
+!data/sample/
+!tests/data/
+
+# ============================================
+# Keep empty directories
+# ============================================
+*/**/.gitkeep
+
+# ============================================
+# END OF FILE
+# ============================================

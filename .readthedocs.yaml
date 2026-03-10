@@ -1,0 +1,101 @@
+# 🪸 CORAL-CORE ReadTheDocs Configuration
+# Biomineralization Dynamics & Reef Hydro-Acoustic Buffering Framework
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18913829
+
+version: 2
+
+# =============================================================================
+# BUILD CONFIGURATION
+# =============================================================================
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.10"
+  jobs:
+    pre_build:
+      - pip install -r requirements-docs.txt
+      - python scripts/generate_api_docs.py
+    post_build:
+      - echo "Documentation built successfully"
+
+# =============================================================================
+# SPHINX CONFIGURATION
+# =============================================================================
+sphinx:
+  configuration: docs/source/conf.py
+  builder: html
+  fail_on_warning: true
+
+# =============================================================================
+# MKDOCS CONFIGURATION (ALTERNATIVE)
+# =============================================================================
+# mkdocs:
+#   configuration: mkdocs.yml
+#   fail_on_warning: false
+
+# =============================================================================
+# PYTHON CONFIGURATION
+# =============================================================================
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
+    - requirements: docs/requirements.txt
+    - method: setuptools
+      path: package
+
+# =============================================================================
+# SUBMODULES
+# =============================================================================
+submodules:
+  include: all
+  recursive: true
+
+# =============================================================================
+# SEARCH
+# =============================================================================
+search:
+  ranking:
+    api/*: 3
+    tutorials/*: 2
+    explanations/*: 1
+  ignore:
+    - 404.html
+    - search.html
+
+# =============================================================================
+# FORMATS
+# =============================================================================
+formats:
+  - pdf
+  - epub
+  - htmlzip
+
+# =============================================================================
+# VERSIONING
+# =============================================================================
+versioning:
+  formats: all
+  defaults:
+    fallback_to_latest: true
+
+# =============================================================================
+# CONDITIONAL_BUILDS
+# =============================================================================
+conda:
+  environment: docs/environment.yml
+
+# =============================================================================
+# REDIRECTS
+# =============================================================================
+redirects:
+  index: README.md
+  installation: INSTALL.md
+  contributing: CONTRIBUTING.md
+  changelog: CHANGELOG.md
+
+# =============================================================================
+# END OF READTHEDOCS.YAML
+# =============================================================================
